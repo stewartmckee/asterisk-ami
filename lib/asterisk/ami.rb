@@ -1,7 +1,9 @@
 require "asterisk/ami/version"
+require "asterisk/connection"
+require "asterisk/action"
+
+require "titleize"
 
 module Asterisk
-  module Ami
-    # Your code goes here...
-  end
+
 end
