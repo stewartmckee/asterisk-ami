@@ -6,9 +6,14 @@ module Asterisk
 
     module ClassMethods
       def parse_lines(str)
-        hash = Hash[*str.split("\r\n").map{|line| line.split(":").map{|element| element.strip}}.flatten]
-        hash.keys.each do |key|
-          hash[(underscore(key).to_sym) || key] = hash.delete(key)
+        hash = {}
+        lines = str.gsub("\r", "").split("\n").select{|line| line.include?(":")}.map{|line| line.split(":").map{|element| element.strip}}
+        lines = lines.flatten
+        if lines.count > 0
+          hash = Hash[*lines]
+          hash.keys.each do |key|
+            hash[(underscore(key).to_sym) || key] = hash.delete(key)
+          end
         end
         hash
       end
@@ -26,7 +31,7 @@ module Asterisk
       messages = []
       messages << add_line("Action", camelize(command, :upcase_ids => true))
       options.map{|k,v| messages << add_line(camelize(k, :upcase_ids => true),v) }
-      messages.join("\r\n") + "\r\n\r\n"
+      messages.join("\r\n")
     end
 
     def add_line(key, value)

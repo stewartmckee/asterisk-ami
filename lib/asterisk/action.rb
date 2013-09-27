@@ -15,7 +15,7 @@ module Asterisk
 
     # send the ami action
     def send(connection)
-      connection.cmd("String" => action.to_ami) {|response| Response.parse(response)}
+      connection.write(self.to_ami + "\r\n\r\n")
     end
 
     # convert the action to ami string to send down wire
