@@ -7,7 +7,9 @@ module Asterisk
     module ClassMethods
       def parse_lines(str)
         hash = {}
-        lines = str.gsub("\r", "").split("\n").select{|line| line.include?(":")}.map{|line| line.split(":").map{|element| element.strip}}
+        lines = str.gsub("\r", "").split("\n").select{|line| line.include?(":")}
+        lines = lines.map{|line| [line.split(":")[0], line.split(":")[1..-1].join(":")]}
+        lines = lines.map{|element| element.map{|e| e.strip}}
         lines = lines.flatten
         if lines.count > 0
           hash = Hash[*lines]

@@ -2,7 +2,7 @@ module Asterisk
   class Action
     include Asterisk::MessageHelper
 
-    def initialize(command, options)
+    def initialize(command, options={})
       @command = command
       @options = options
       @options[:action_id] = Random.rand(9999) unless @options.has_key?(:action_id)
@@ -15,6 +15,7 @@ module Asterisk
 
     # send the ami action
     def send(connection)
+      puts self.to_ami
       connection.write(self.to_ami + "\r\n\r\n")
     end
 

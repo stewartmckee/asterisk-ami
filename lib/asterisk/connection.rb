@@ -2,6 +2,7 @@ module Asterisk
   class Connection
 
     require "net/telnet"
+    require "json"
 
     def initialize(username, password, server="localhost", port=5038)
       @server = server
@@ -12,23 +13,25 @@ module Asterisk
       @events = []
     end
 
-    def connect(&block)
+    def connect
       @connection = Net::Telnet::new("Host" => @server, "Port" => @port, "Timeout" => false, "Telnetmode" => false)
       @connection.waitfor(/Asterisk Call Manager\/\d+\.\d+/) {|response| puts response }
       Action.new(:login, :username => @username, :secret => @password).send(@connection)
+    end
 
+    def events(&block)
       if block_given?
         t = Thread.new do |thread|
           while true
-            @connection.waitfor("Match" => /./) do |received_data|
+            @connection.waitfor("Match" => /\r\n\r\n/) do |received_data|
               begin
-                if received_data.include?("Response")
-                  yield Response.parse(received_data) if block_given?
-                else
-                  yield Event.parse(received_data) if block_given?
+                if received_data.include?("Event")
+                  yield Asterisk::Event.parse(received_data) if block_given?
                 end
-              rescue
-                "exception in connection_waitfor"
+              rescue Errno::EPIPE => e
+                t.exit
+              rescue => e
+                puts "Exception in Loop: #{e.message}"
               end
             end
           end
