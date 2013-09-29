@@ -14,24 +14,35 @@ module Asterisk
     end
 
     def connect
-      @connection = Net::Telnet::new("Host" => @server, "Port" => @port, "Timeout" => false, "Telnetmode" => false)
-      @connection.waitfor(/Asterisk Call Manager\/\d+\.\d+/) {|response| puts response }
-      Action.new(:login, :username => @username, :secret => @password).send(@connection)
+      unless @connection
+        puts "Connecting to #{@server}:#{@port} with user #{@username}"
+        @connection = Net::Telnet::new("Host" => @server, "Port" => @port, "Timeout" => false, "Telnetmode" => false)
+        puts "connected"
+        @connection.waitfor(/Asterisk Call Manager\/\d+\.\d+/) {|response| puts response }
+        puts "Logging in.."
+        Asterisk::Action.new(:login, :username => @username, :secret => @password).send(@connection)
+        puts "Done."
+      end
     end
 
     def events(&block)
       if block_given?
+        connect
         t = Thread.new do |thread|
           while true
             @connection.waitfor("Match" => /\r\n\r\n/) do |received_data|
-              begin
-                if received_data.include?("Event")
-                  yield Asterisk::Event.parse(received_data) if block_given?
+              if received_data
+                begin
+                  if received_data.include?("Event")
+                    yield Asterisk::Event.parse(received_data) if block_given?
+                  end
+                rescue Errno::EPIPE => e
+                  puts "Error in connection to Asterisk: #{e.message}"
+                  puts e.backtrace.join("\n")
+                  t.exit
+                rescue => e
+                  puts "Exception in Loop: #{e.message}"
                 end
-              rescue Errno::EPIPE => e
-                t.exit
-              rescue => e
-                puts "Exception in Loop: #{e.message}"
               end
             end
           end

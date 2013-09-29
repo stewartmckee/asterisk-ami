@@ -1,3 +1,5 @@
+require File.expand_path(File.dirname(__FILE__)) + "/message_helper"
+
 module Asterisk
   class Action
     include Asterisk::MessageHelper
