@@ -29,9 +29,12 @@ module Asterisk
                   yield Asterisk::Event.parse(received_data) if block_given?
                 end
               rescue Errno::EPIPE => e
+                @connection.close
+                connect
                 t.exit
               rescue => e
                 puts "Exception in Loop: #{e.message}"
+                puts e.backtrace.join("/n")
               end
             end
           end
