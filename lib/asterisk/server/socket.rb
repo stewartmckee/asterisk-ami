@@ -26,6 +26,7 @@ server.run() do |ws|
   puts("Connection accepted")
   puts("Path: #{ws.path}, Origin: #{ws.origin}")
   if ws.path == "/"
+    puts "Received connection from browser"
     ws.handshake()
     ws.send("Connected.")
     connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])

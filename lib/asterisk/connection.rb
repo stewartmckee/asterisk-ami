@@ -48,18 +48,12 @@ module Asterisk
                     puts "Exception in Loop: #{e.message}"
                   end
                 else
+                  @connection.close
                   puts "Reconnecting..."
                   force_connection = true
-                  sleep(4)
-                  t.kill
+                  connect(true)
+                  break
                 end
-              rescue Errno::EPIPE => e
-                @connection.close
-                connect
-                t.exit
-              rescue => e
-                puts "Exception in Loop: #{e.message}"
-                puts e.backtrace.join("/n")
               end
               puts "outside waitfor loop"
             end
