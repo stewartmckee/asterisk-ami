@@ -18,7 +18,7 @@ module Asterisk
     # send the ami action
     def send(connection)
       #puts self.to_ami
-      connection.write(self.to_ami + "\r\n\r\n")
+      connection.write(self.to_ami)
       #connection.waitfor("Match" => /\r\n\r\n/) do |received_data|
         #puts received_data
       #end
@@ -26,7 +26,7 @@ module Asterisk
 
     # convert the action to ami string to send down wire
     def to_ami
-      ami_lines(@command, @options)
+      ami_lines(@command, @options) + "\r\n\r\n"
     end
 
     def to_hash
