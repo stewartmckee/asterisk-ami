@@ -35,17 +35,19 @@ module Asterisk
               puts "Waiting for data.."
               @connection.waitfor("Match" => /\r\n\r\n/) do |received_data|
                 if received_data
-                  begin
-                    if received_data.include?("Event")
-                      yield Asterisk::Event.parse(received_data) if block_given?
+                  received_data.split("\r\n\r\n").each do |message|
+                    begin
+                      if message.include?("Event")
+                        yield Asterisk::Event.parse(message) if block_given?
+                      end
+                    rescue Errno::EPIPE => e
+                      puts "Error in connection to Asterisk: #{e.message}"
+                      puts e.backtrace.join("\n")
+                      sleep(4)
+                      t.kill
+                    rescue => e
+                      puts "Exception in Loop: #{e.message}"
                     end
-                  rescue Errno::EPIPE => e
-                    puts "Error in connection to Asterisk: #{e.message}"
-                    puts e.backtrace.join("\n")
-                    sleep(4)
-                    t.kill
-                  rescue => e
-                    puts "Exception in Loop: #{e.message}"
                   end
                 else
                   @connection.close
