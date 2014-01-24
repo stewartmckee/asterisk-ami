@@ -8,13 +8,13 @@ Thread.abort_on_exception = true
 # WebSocket.debug = true
 
 if ARGV.size != 5
-  $stderr.puts("Usage: ruby sample/echo_server.rb ACCEPTED_DOMAIN PORT AMI_USERNAME AMI_PASSWORD AMI_HOSTNAME")
+  $stderr.puts("Usage: asterisk-ami ACCEPTED_DOMAIN PORT AMI_USERNAME AMI_PASSWORD AMI_HOSTNAME")
   exit(1)
 end
 
 
 server = WebSocketServer.new(
-  :accepted_domains => [ARGV[0]],
+  :accepted_domains => [ARGV[0], "localhost"],
   :port => ARGV[1].to_i())
 
 ami_username = ARGV[2]
