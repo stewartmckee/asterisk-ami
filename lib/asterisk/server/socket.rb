@@ -24,6 +24,7 @@ ami_username = ARGV[2]
 ami_password = ARGV[3]
 ami_host = ARGV[4]
 
+puts "Starting Server on port #{port}"
 EM.run {
   EM::WebSocket.run(:host => "0.0.0.0", :port => port) do |ws|
     ws.onopen { |handshake|
@@ -34,14 +35,6 @@ EM.run {
 
       # Publish message to the client
       ws.send "Welcome to asterisk-ami, you connected to #{handshake.path}"
-
-      connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])
-      connection.events do |data|
-        puts data.to_json
-        ws.send(data.to_json)
-      end
-      puts "out of loop, finished thread."
-
     }
 
     ws.onclose { puts "Connection closed" }
@@ -50,6 +43,13 @@ EM.run {
       puts "Recieved message: #{msg}"
       ws.send "Pong: #{msg}"
     }
+
+    connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])
+    connection.events do |data|
+      puts data.to_json
+      ws.send(data.to_json)
+    end
+
   end
 }
 
