@@ -36,7 +36,7 @@ EM.run {
 
       # Publish message to the client
       puts "Sending 'Welcome to asterisk-ami, you connected to #{handshake.path}' to client."
-      ws.send "Welcome to asterisk-ami, you connected to #{handshake.path}"
+      ws.send "Connected."
     }
 
     ws.onclose { puts "Connection closed" }
