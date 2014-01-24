@@ -29,9 +29,8 @@ EM.run {
   EM::WebSocket.run(:host => "0.0.0.0", :port => port) do |ws|
     ws.onopen { |handshake|
 
-      puts "WebSocket connection open"
+      puts "Websocket connection request received"
 
-      puts handshake
       # Access properties on the EM::WebSocket::Handshake object, e.g.
       # path, query_string, origin, headers
 
