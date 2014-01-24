@@ -28,12 +28,15 @@ puts "Starting Server on port #{port}"
 EM.run {
   EM::WebSocket.run(:host => "0.0.0.0", :port => port) do |ws|
     ws.onopen { |handshake|
+
       puts "WebSocket connection open"
 
+      puts handshake
       # Access properties on the EM::WebSocket::Handshake object, e.g.
       # path, query_string, origin, headers
 
       # Publish message to the client
+      puts "Sending 'Welcome to asterisk-ami, you connected to #{handshake.path}' to client."
       ws.send "Welcome to asterisk-ami, you connected to #{handshake.path}"
     }
 
@@ -44,10 +47,12 @@ EM.run {
       ws.send "Pong: #{msg}"
     }
 
-    connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])
-    connection.events do |data|
-      puts data.to_json
-      ws.send(data.to_json)
+    t = Thread.new do
+      connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])
+      connection.events do |data|
+        puts data.to_json
+        ws.send(data.to_json)
+      end
     end
 
   end
