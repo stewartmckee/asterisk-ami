@@ -42,7 +42,7 @@ EM.run {
 
     ws.onmessage { |msg|
       puts "Recieved message: #{msg}"
-      
+
       if msg.is_json?
         puts "its json"
         data = JSON.parse(msg)
@@ -57,6 +57,11 @@ EM.run {
           when "hangup"
             ami_command = Asterisk::Action.new("Hangup", :channel => data["channel"])  
             puts ami_command.to_ami
+            
+          when "transfer"
+            ami_command = Asterisk::Action.new("Bridge", :channel1 => data["channel1"], :channel2 => data["channel2"], :tone => "yes") 
+            puts ami_command.to_ami
+            
           end
           ami_command.send(@connection)
         else
