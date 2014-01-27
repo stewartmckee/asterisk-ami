@@ -35,7 +35,6 @@ EM.run {
       # path, query_string, origin, headers
 
       # Publish message to the client
-      puts "Sending 'Welcome to asterisk-ami, you connected to #{handshake.path}' to client."
       ws.send "Connected."
     }
 
@@ -43,12 +42,31 @@ EM.run {
 
     ws.onmessage { |msg|
       puts "Recieved message: #{msg}"
-      ws.send "Pong: #{msg}"
+
+      if msg.is_json?
+        puts "its json"
+        data = JSON.parse(msg)
+        puts data
+        if data["command"]
+          puts "its a command"
+          case data["command"]
+          when "initiate-call"
+            puts "initiate call!"
+            ami_command = Asterisk::Action.new("Originate", :channel => "SIP/#{data["from"]}", :exten => data["to"], :priority => 1, :context => "default")
+            puts ami_command.to_ami
+          end
+          ami_command.send(@connection)
+        else
+          ws.send ("No action found to execute, you must supply a command")
+        end
+      else
+        ws.send "Pong: #{msg}"
+      end
     }
 
+    @connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])
     t = Thread.new do
-      connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])
-      connection.events do |data|
+      @connection.events do |data|
         puts data.to_json
         ws.send(data.to_json)
       end

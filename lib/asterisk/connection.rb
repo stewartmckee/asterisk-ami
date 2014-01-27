@@ -25,6 +25,10 @@ module Asterisk
       end
     end
 
+    def write(str)
+      @connection.write(str + "\r\n\r\n")
+    end
+
     def events(&block)
       force_connection = false
       if block_given?
