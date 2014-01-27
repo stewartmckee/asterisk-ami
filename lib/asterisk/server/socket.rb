@@ -54,6 +54,9 @@ EM.run {
             puts "initiate call!"
             ami_command = Asterisk::Action.new("Originate", :channel => "SIP/#{data["from"]}", :exten => data["to"], :priority => 1, :context => "default")
             puts ami_command.to_ami
+          when "hangup"
+            ami_command = Asterisk::Action.new("Hangup", :channel => data["channel"])
+            puts ami_command.to_ami
           end
           ami_command.send(@connection)
         else
