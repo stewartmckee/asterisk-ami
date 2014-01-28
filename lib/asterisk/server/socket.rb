@@ -44,25 +44,34 @@ EM.run {
       puts "Recieved message: #{msg}"
 
       if msg.is_json?
-        puts "its json"
         data = JSON.parse(msg)
-        puts data
         if data["command"]
-          puts "its a command"
           case data["command"]
           when "initiate-call"
-            puts "initiate call!"
-            ami_command = Asterisk::Action.new("Originate", :channel => "SIP/#{data["from"]}", :exten => data["to"], :priority => 1, :context => "default")
-            puts ami_command.to_ami
+            ami_command = Asterisk::Action.new(:originate, :channel => "SIP/#{data["from"]}", :exten => data["to"], :priority => 1, :context => "default")
           when "hangup"
-            ami_command = Asterisk::Action.new("Hangup", :channel => data["channel"])  
-            puts ami_command.to_ami
-            
+            ami_command = Asterisk::Action.new(:hangup, :channel => data["channel"])  
           when "transfer"
-            ami_command = Asterisk::Action.new("Bridge", :channel1 => data["channel1"], :channel2 => data["channel2"], :tone => "yes") 
-            puts ami_command.to_ami
-            
+            ami_command = Asterisk::Action.new(:bridge, :channel1 => data["channel1"], :channel2 => data["channel2"], :tone => "yes") 
+          when "hold"
+            if data.has_key?("timeout")
+              timeout = data["timeout"].to_s.to_i
+            else
+              timeout = 60
+            end
+            ami_command = Asterisk::Action.new(:park, :channel => data["channel"], :channel2 => data["my_channel"], :timeout => (timeout*1000).to_s)
+          when "unhold"
+            ami_command = Asterisk::Action.new(:bridge, :channel => data["my_channel"], :channel2 => data["remote_channel"], :tone => "yes")
+          when "start-recording"
+            ami_command = Asterisk::Action.new(:monitor, :channel => data["channel"], :format => "wav", :mix => "true")
+          when "stop-recording"
+            ami_command = Asterisk::Action.new(:stop_monitor, :channel => data["channel"])
+          when "pause-recording"
+            ami_command = Asterisk::Action.new(:pause_monitor, :channel => data["channel"])
+          when "resume-recording"
+            ami_command = Asterisk::Action.new(:unpause_monitor, :channel => data["channel"])
           end
+          puts ami_command.to_ami
           ami_command.send(@connection)
         else
           ws.send ("No action found to execute, you must supply a command")
@@ -75,6 +84,7 @@ EM.run {
     @connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])
     t = Thread.new do
       @connection.events do |data|
+        puts " ====  #{data[:event]} ===="
         puts data.to_json
         ws.send(data.to_json)
       end

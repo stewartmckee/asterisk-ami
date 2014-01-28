@@ -20,13 +20,13 @@ module Asterisk
         puts "connected"
         @connection.waitfor(/Asterisk Call Manager\/\d+\.\d+/) {|response| puts response }
         puts "Logging in.."
-        Asterisk::Action.new(:login, :username => @username, :secret => @password).send(@connection)
+        Asterisk::Action.new(:login, :username => @username, :secret => @password).send(self)
         puts "Done."
       end
     end
 
-    def write(str)
-      @connection.write(str + "\r\n\r\n")
+    def write(command)
+      @connection.write(command + "\r\n\r\n")
     end
 
     def events(&block)
@@ -43,6 +43,8 @@ module Asterisk
                     begin
                       if message.include?("Event")
                         yield Asterisk::Event.parse(message) if block_given?
+                      else
+                        puts message
                       end
                     rescue Errno::EPIPE => e
                       puts "Error in connection to Asterisk: #{e.message}"
