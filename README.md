@@ -1,6 +1,6 @@
 # Asterisk::Ami
 
-TODO: Write a gem description
+Asterisk Websocket to AMI proxy.
 
 ## Installation
 
@@ -18,7 +18,9 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Run the ami proxy from the command line with the following command changing the ami_* parameters with your access details for asterisk.
+
+    $ bundle exec asterisk-ami localhost 8088 ami_user ami_password ami_host
 
 ## Contributing
 

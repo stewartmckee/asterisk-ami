@@ -48,11 +48,12 @@ EM.run {
         if data["command"]
           case data["command"]
           when "initiate-call"
-            ami_command = Asterisk::Action.new(:originate, :channel => "SIP/#{data["from"]}", :exten => data["to"], :priority => 1, :context => "default")
+            ami_command = Asterisk::Action.new(:originate, :channel => "SIP/#{data["from"]}", :extension => data["to"], :priority => 1, :context => "default")
           when "hangup"
             ami_command = Asterisk::Action.new(:hangup, :channel => data["channel"])  
           when "transfer"
-            ami_command = Asterisk::Action.new(:bridge, :channel1 => data["channel1"], :channel2 => data["channel2"], :tone => "yes") 
+            ami_command = Asterisk::Action.new(:blind_transfer, :channel => data["channel"], :extension => data["to"], :context => "default")
+
           when "hold"
             if data.has_key?("timeout")
               timeout = data["timeout"].to_s.to_i
@@ -70,6 +71,16 @@ EM.run {
             ami_command = Asterisk::Action.new(:pause_monitor, :channel => data["channel"])
           when "resume-recording"
             ami_command = Asterisk::Action.new(:unpause_monitor, :channel => data["channel"])
+          when "queue-add"
+            ami_command = Asterisk::Action.new(:queue_add, :channel => data["channel"])
+          when "queue-pause"
+            ami_command = Asterisk::Action.new(:queue_pause, :channel => data["channel"])
+          when "queue-remove"
+            ami_command = Asterisk::Action.new(:queue_remove, :channel => data["channel"])
+          when "queues"
+            ami_command = Asterisk::Action.new(:queues, :channel => data["channel"])
+          when "queue-status"
+            ami_command = Asterisk::Action.new(:queue_status, :channel => data["channel"])
           end
           puts ami_command.to_ami
           ami_command.send(@connection)
@@ -84,7 +95,7 @@ EM.run {
     @connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])
     t = Thread.new do
       @connection.events do |data|
-        puts " ====  #{data[:event]} ===="
+        puts " ====  #{data[:event]} ==== "
         puts data.to_json
         ws.send(data.to_json)
       end

@@ -2,6 +2,7 @@ require File.expand_path(File.dirname(__FILE__)) + "/message_helper"
 
 module Asterisk
   class Action
+
     include Asterisk::MessageHelper
 
     def initialize(command, options={})
@@ -17,11 +18,11 @@ module Asterisk
 
     # send the ami action
     def send(connection)
-      #puts self.to_ami
       connection.write(self.to_ami)
-      #connection.waitfor("Match" => /\r\n\r\n/) do |received_data|
-        #puts received_data
-      #end
+    end
+
+    def action_id
+      @options[:action_id]
     end
 
     # convert the action to ami string to send down wire
