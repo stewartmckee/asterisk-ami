@@ -9,24 +9,26 @@ require 'em-websocket'
 Thread.abort_on_exception = true
 # WebSocket.debug = true
 
-if ARGV.size != 5
-  $stderr.puts("Usage: asterisk-ami ACCEPTED_DOMAIN PORT AMI_USERNAME AMI_PASSWORD AMI_HOSTNAME")
+if ARGV.size < 3
+  $stderr.puts("Usage: asterisk-ami AMI_USERNAME AMI_PASSWORD AMI_HOSTNAME [ACCEPTED_DOMAIN] [PORT]")
   exit(1)
 end
 
-# server = WebSocketServer.new(
-#   :accepted_domains => [ARGV[0], "localhost"],
-#   :port => ARGV[1].to_i())
 
-port = ARGV[1].to_i
 
-ami_username = ARGV[2]
-ami_password = ARGV[3]
-ami_host = ARGV[4]
+host = ARGV[3]
+port = ARGV[4].to_i
+
+ami_host = ARGV[0]
+ami_username = ARGV[1]
+ami_password = ARGV[2]
+
+host = "0.0.0.0" if host.nil?
+port = 8088 if port==0
 
 puts "Starting Server on port #{port}"
 EM.run {
-  EM::WebSocket.run(:host => "0.0.0.0", :port => port) do |ws|
+  EM::WebSocket.run(:host => host, :port => port) do |ws|
     ws.onopen { |handshake|
 
       puts "Websocket connection request received"
@@ -48,11 +50,11 @@ EM.run {
         if data["command"]
           case data["command"]
           when "initiate-call"
-            ami_command = Asterisk::Action.new(:originate, :channel => "SIP/#{data["from"]}", :extension => data["to"], :priority => 1, :context => "default")
+            ami_command = Asterisk::Action.new(:originate, :action_id => data["action_id"], :channel => "SIP/#{data["from"]}", :extension => data["to"], :priority => 1, :context => "default")
           when "hangup"
-            ami_command = Asterisk::Action.new(:hangup, :channel => data["channel"])  
+            ami_command = Asterisk::Action.new(:hangup, :action_id => data["action_id"], :channel => data["channel"])  
           when "transfer"
-            ami_command = Asterisk::Action.new(:blind_transfer, :channel => data["channel"], :extension => data["to"], :context => "default")
+            ami_command = Asterisk::Action.new(:blind_transfer, :action_id => data["action_id"], :channel => data["channel"], :extension => data["to"], :context => "default")
 
           when "hold"
             if data.has_key?("timeout")
@@ -60,30 +62,32 @@ EM.run {
             else
               timeout = 60
             end
-            ami_command = Asterisk::Action.new(:park, :channel => data["channel"], :channel2 => data["my_channel"], :timeout => (timeout*1000).to_s)
+            ami_command = Asterisk::Action.new(:park, :action_id => data["action_id"], :channel => data["channel"], :channel2 => data["my_channel"], :timeout => (timeout*1000).to_s)
           when "unhold"
-            ami_command = Asterisk::Action.new(:bridge, :channel => data["my_channel"], :channel2 => data["remote_channel"], :tone => "yes")
+            ami_command = Asterisk::Action.new(:bridge, :action_id => data["action_id"], :channel => data["my_channel"], :channel2 => data["remote_channel"], :tone => "yes")
           when "start-recording"
-            ami_command = Asterisk::Action.new(:monitor, :channel => data["channel"], :format => "wav", :mix => "true")
+            ami_command = Asterisk::Action.new(:monitor, :action_id => data["action_id"], :channel => data["channel"], :format => "wav", :mix => "true")
           when "stop-recording"
-            ami_command = Asterisk::Action.new(:stop_monitor, :channel => data["channel"])
+            ami_command = Asterisk::Action.new(:stop_monitor, :action_id => data["action_id"], :channel => data["channel"])
           when "pause-recording"
-            ami_command = Asterisk::Action.new(:pause_monitor, :channel => data["channel"])
+            ami_command = Asterisk::Action.new(:pause_monitor, :action_id => data["action_id"], :channel => data["channel"])
           when "resume-recording"
-            ami_command = Asterisk::Action.new(:unpause_monitor, :channel => data["channel"])
+            ami_command = Asterisk::Action.new(:unpause_monitor, :action_id => data["action_id"], :channel => data["channel"])
           when "queue-add"
-            ami_command = Asterisk::Action.new(:queue_add, :channel => data["channel"])
+            ami_command = Asterisk::Action.new(:queue_add, :action_id => data["action_id"], :channel => data["channel"])
           when "queue-pause"
-            ami_command = Asterisk::Action.new(:queue_pause, :channel => data["channel"])
+            ami_command = Asterisk::Action.new(:queue_pause, :action_id => data["action_id"], :channel => data["channel"])
           when "queue-remove"
-            ami_command = Asterisk::Action.new(:queue_remove, :channel => data["channel"])
+            ami_command = Asterisk::Action.new(:queue_remove, :action_id => data["action_id"], :channel => data["channel"])
           when "queues"
-            ami_command = Asterisk::Action.new(:queues, :channel => data["channel"])
+            ami_command = Asterisk::Action.new(:queues, :action_id => data["action_id"], :channel => data["channel"])
           when "queue-status"
-            ami_command = Asterisk::Action.new(:queue_status, :channel => data["channel"])
+            ami_command = Asterisk::Action.new(:queue_status, :action_id => data["action_id"], :channel => data["channel"])
+          when "get_variable"
+            ami_command = Asterisk::Action.new(:get_var, :action_id => data["action_id"], :channel => data["channel"], :variable => data["name"])
           end
           puts ami_command.to_ami
-          ami_command.send(@connection)
+          @connection.send(ami_command)
         else
           ws.send ("No action found to execute, you must supply a command")
         end
@@ -92,7 +96,7 @@ EM.run {
       end
     }
 
-    @connection = Asterisk::Connection.new(ARGV[2], ARGV[3], ARGV[4])
+    @connection = Asterisk::Connection.new(ami_username, ami_password, ami_host)
     t = Thread.new do
       @connection.events do |data|
         puts " ====  #{data[:event]} ==== "
