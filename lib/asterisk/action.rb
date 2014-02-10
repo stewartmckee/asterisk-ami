@@ -8,7 +8,7 @@ module Asterisk
     def initialize(command, options={})
       @command = command
       @options = options
-      @options[:action_id] = Random.rand(9999) unless @options.has_key?(:action_id)
+      @options[:action_id] = Random.rand(99999999) unless @options[:action_id]
     end
 
     def self.parse(str)
