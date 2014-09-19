@@ -5,10 +5,9 @@ $LOAD_PATH << File.expand_path(File.dirname(__FILE__)) + "/../lib"
 require File.expand_path(File.dirname(__FILE__)) + "/../../ami"
 
 Thread.abort_on_exception = true
-# WebSocket.debug = true
 
 if ARGV.size != 5
-  $stderr.puts("Usage: ruby sample/echo_server.rb ACCEPTED_DOMAIN PORT AMI_USERNAME AMI_PASSWORD AMI_HOSTNAME")
+  $stderr.puts("Usage: ruby sample/echo_server.rb AMI_USERNAME AMI_PASSWORD AMI_HOSTNAME ACCEPTED_DOMAIN PORT ")
   exit(1)
 end
 
@@ -32,7 +31,7 @@ server.run() do |ws|
     puts "Received connection from browser"
     ws.handshake()
     ws.send("Connected.")
-    
+
     channel.subscribe do |data|
       if ws
         puts "Sending #{data[:event]} event to websocket"
