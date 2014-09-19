@@ -13,6 +13,7 @@ module Asterisk
       @timeout = 1
 
       @events = []
+      @channel = EM::Channel.new
 
       connect
     end
@@ -30,7 +31,6 @@ module Asterisk
 
         while not EM.reactor_running?; end
 
-        @channel = EM::Channel.new
 
         MessageHandler.setup(@server, @port, @username, @password, @channel)
 
