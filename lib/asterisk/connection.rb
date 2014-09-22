@@ -15,7 +15,10 @@ module Asterisk
       @events = []
       @channel = EM::Channel.new
 
-      connect
+      @connection = connect
+
+      action = Asterisk::Action.new(:login, :username => @username, :secret => @password)
+      @connection.send_data action.to_ami
     end
 
     def connect(force = false)
@@ -45,6 +48,11 @@ module Asterisk
           puts "Error in connection to Browser: #{e.message}"
         end
       end
+    end
+
+    def write(data)
+      puts "Sending: #{data}"
+      @connection.send_data(data)
     end
 
     def disconnect

@@ -17,8 +17,11 @@ module Asterisk
 
     # send the ami action
     def send(connection)
-      #puts self.to_ami
+      puts "----------------------------------------------------"
+      ap self.to_ami
+      puts "----------------------------------------------------"
       connection.write(self.to_ami)
+      puts "Sent."
       #connection.waitfor("Match" => /\r\n\r\n/) do |received_data|
         #puts received_data
       #end
