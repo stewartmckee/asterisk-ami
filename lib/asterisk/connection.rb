@@ -15,7 +15,10 @@ module Asterisk
       @events = []
       @channel = EM::Channel.new
 
-      connect
+      @connection = connect
+
+      action = Asterisk::Action.new(:login, :username => @username, :secret => @password)
+      @connection.send_data action.to_ami
     end
 
     def connect(force = false)
@@ -35,7 +38,6 @@ module Asterisk
         MessageHandler.setup(@server, @port, @username, @password, @channel)
 
         EventMachine.connect @server, @port, MessageHandler
-
       end
     end
 
@@ -48,6 +50,11 @@ module Asterisk
         end
       end
       puts "out of loop, finished thread."
+    end
+
+    def write(data)
+      puts "Sending: #{data}"
+      @connection.send_data(data)
     end
 
     def disconnect

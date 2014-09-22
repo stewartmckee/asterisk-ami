@@ -7,6 +7,8 @@ module Asterisk
       @@username = username
       @@password = password
       @@channel = channel
+
+      self
     end
 
     def post_init
@@ -18,9 +20,7 @@ module Asterisk
     end
 
     def receive_data(data)
-      @username = "ami_user"
-      @password = "jumping-eleven-brick"
-
+      ap data
       data.split("\r\n\r\n").each do |message|
         if message =~ /Asterisk Call Manager\/\d\.\d\.\d\r\n/
           puts "logging in"
@@ -38,7 +38,7 @@ module Asterisk
       puts "#{@@server}: #{@@port}"
       puts "-- disconnected from remote server!"
       # puts "-- attempting reconnection"
-      # reconnect @@server, @@port # use reconnect, already provided by EventMachine 
+      # reconnect @@server, @@port # use reconnect, already provided by EventMachine
 
     end
 

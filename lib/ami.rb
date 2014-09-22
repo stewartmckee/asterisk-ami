@@ -1,5 +1,3 @@
-
-
 Dir[File.dirname(__FILE__) + '/asterisk/*.rb'].each {|file| require file }
 require "titleize"
 
