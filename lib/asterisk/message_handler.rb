@@ -20,10 +20,8 @@ module Asterisk
     def receive_data(data)
       @username = "ami_user"
       @password = "jumping-eleven-brick"
-
       data.split("\r\n\r\n").each do |message|
         if message =~ /Asterisk Call Manager\/\d\.\d\.\d\r\n/
-          puts "logging in"
           action = Asterisk::Action.new(:login, :username => @@username, :secret => @@password)
           send_data action.to_ami
         else
