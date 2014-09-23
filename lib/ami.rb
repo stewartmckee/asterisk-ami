@@ -1,8 +1,6 @@
 Dir[File.dirname(__FILE__) + '/asterisk/*.rb'].each {|file| require file }
 require "titleize"
 
-puts "Required Asterisk Ami"
-
 module Asterisk
   module Ami
     class Server
@@ -109,6 +107,14 @@ module Asterisk
 
       def mailbox_count(exten, context="default")
         Asterisk::Action.new("MailboxCount", {"Mailbox" => "#{exten}@#{context}"}).send(@connection)
+      end
+
+      def start_recording(channel, filename, options={})
+        Asterisk::Action.new("MixMonitor", {"Channel" => channel, "File" => filename}).send(@connection)
+      end
+
+      def end_recording(channel)
+        Asterisk::Action.new("StopMixMonitor", {"Channel" => channel}).send(@connection)
       end
     end
   end
