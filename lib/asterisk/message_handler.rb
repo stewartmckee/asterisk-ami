@@ -20,7 +20,6 @@ module Asterisk
     end
 
     def receive_data(data)
-      ap data
       data.split("\r\n\r\n").each do |message|
         if message =~ /Asterisk Call Manager\/\d\.\d\.\d\r\n/
           puts "logging in"
