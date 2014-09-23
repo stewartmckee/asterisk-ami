@@ -110,6 +110,7 @@ module Asterisk
       end
 
       def start_recording(channel, filename, options={})
+        ap Asterisk::Action.new("MixMonitor", {"Channel" => channel, "File" => filename})
         Asterisk::Action.new("MixMonitor", {"Channel" => channel, "File" => filename}).send(@connection)
       end
 
