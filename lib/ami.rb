@@ -47,6 +47,10 @@ module Asterisk
         Asterisk::Action.new("MeetMeList").send(@connection)
       end
 
+      def hangup(channel)
+        Asterisk::Action.new("Hangup", {"Channel" => channel}).send(@connection)
+      end
+
       def hold(channel, channel2, timeout=3600)
         Asterisk::Action.new("Park", {"Channel" => channel, "Channel2" => channel2, "Timeout" => timeout}).send(@connection)
       end
