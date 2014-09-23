@@ -12,7 +12,7 @@ module Asterisk
       def connect
         begin
           @connection.connect
-          self.connected = true
+          @connected = true
         rescue Exception => ex
           false
         end
@@ -20,8 +20,8 @@ module Asterisk
 
       def disconnect
         begin
-          @connection.disconnect if self.connected
-          self.connected = false
+          @connection.disconnect
+          @connected = false
           true
         rescue Exception => ex
           puts ex
@@ -115,7 +115,7 @@ module Asterisk
       end
 
       def end_recording(channel)
-        Asterisk::Action.new("StopMixMonitor", {"Channel" => channel}).send(@connection)
+        Asterisk::Action.new("stop_mix_monitor", {"Channel" => channel}).send(@connection)
       end
     end
   end
