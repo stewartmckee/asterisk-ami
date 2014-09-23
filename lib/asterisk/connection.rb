@@ -22,23 +22,22 @@ module Asterisk
     end
 
     def connect(force = false)
-      if force || @connection.nil?
-        puts "Connecting to #{@server}:#{@port} with user #{@username}"
-        #@connection = TCPSocket.new @server, @port
+      #puts "Connecting to #{@server}:#{@port} with user #{@username}"
+      #@connection = TCPSocket.new @server, @port
 
-        Thread.new { EM.run  }
+      Thread.new { EM.run  }
 
-        # Catch signals to ensure a clean shutdown of EventMachine
-        trap(:INT) { EM.stop }
-        trap(:TERM){ EM.stop }
+      # Catch signals to ensure a clean shutdown of EventMachine
+      trap(:INT) { EM.stop }
+      trap(:TERM){ EM.stop }
 
-        while not EM.reactor_running?; end
+      while not EM.reactor_running?; end
 
 
-        MessageHandler.setup(@server, @port, @username, @password, @channel)
+      MessageHandler.setup(@server, @port, @username, @password, @channel)
 
-        EventMachine.connect @server, @port, MessageHandler
-      end
+      EventMachine.connect @server, @port, MessageHandler
+
     end
 
     def events(&block)
@@ -49,7 +48,6 @@ module Asterisk
           puts "Error in connection to Browser: #{e.message}"
         end
       end
-      puts "out of loop, finished thread."
     end
 
     def write(data)
