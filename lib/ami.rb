@@ -46,7 +46,8 @@ module Asterisk
       end
 
       def hangup(channel)
-        Asterisk::Action.new("Hangup", {"Channel" => channel}).send(@connection)
+        #Asterisk::Action.new("Hangup", {"Channel" => channel}).send(@connection)
+        Asterisk::Action.new("Command", {"Command" => "hangup request #{channel}"}).send(@connection)
       end
 
       def hold(channel, channel2, timeout=3600)
@@ -116,6 +117,15 @@ module Asterisk
 
       def end_recording(channel)
         Asterisk::Action.new("StopMixMonitor", {"Channel" => channel}).send(@connection)
+      end
+
+      def agi(channel, command)
+        Asterisk::Action.new("agi", {"Channel" => channel, "Command" => command}).send(@connection)
+      end
+
+      def set_variable(name, value, channel)
+        puts Asterisk::Action.new("setvar", {"Channel" => channel, "Variable" => name, "Value" => value}).to_ami
+        Asterisk::Action.new("setvar", {"Channel" => channel, "Variable" => name, "Value" => value}).send(@connection)
       end
     end
   end
