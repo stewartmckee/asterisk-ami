@@ -51,10 +51,6 @@ module Asterisk
     end
 
     def write(data)
-      puts "- Sending --------------"
-      puts data
-      puts "-------------------------"
-
       @connection.send_data(data)
     end
 

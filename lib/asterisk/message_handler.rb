@@ -12,24 +12,20 @@ module Asterisk
     end
 
     def post_init
-      puts "EM - Connecting"
+      #puts "EM - Connecting"
     end
 
     def connection_completed
-      puts "TCP - Connected"
+      #puts "TCP - Connected"
     end
 
     def receive_data(data)
-      puts "- Received --------------"
-      puts data
-      puts "-------------------------"
       data.split("\r\n\r\n").each do |message|
         if message =~ /Asterisk Call Manager\/\d\.\d\.\d\r\n/
           action = Asterisk::Action.new(:login, :username => @@username, :secret => @@password)
           send_data action.to_ami
         else
           if message.include?("Event")
-            ap Asterisk::Event.parse(message)
             @@channel.push Asterisk::Event.parse(message)
           end
         end

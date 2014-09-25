@@ -45,16 +45,24 @@ module Asterisk
         Asterisk::Action.new("MeetMeList").send(@connection)
       end
 
+      def blind_transfer(channel, extension, context="default", priority="1")
+        Asterisk::Action.new("Redirect", {"Channel" => channel, "Exten" => extension, "Context" => context, "Priority" => priority}).send(@connection)
+      end
+
+      def attended_transfer(channel, extension)
+
+      end
+
       def hangup(channel)
         #Asterisk::Action.new("Hangup", {"Channel" => channel}).send(@connection)
         Asterisk::Action.new("Command", {"Command" => "hangup request #{channel}"}).send(@connection)
       end
 
-      def hold(channel, channel2, timeout=3600)
+      def park(channel, channel2, timeout=3600)
         Asterisk::Action.new("Park", {"Channel" => channel, "Channel2" => channel2, "Timeout" => timeout}).send(@connection)
       end
 
-      def resume(channel, channel2)
+      def bridge(channel, channel2)
         Asterisk::Action.new("Bridge", {"Channel1" => channel, "Channel2" => channel2})
       end
 
