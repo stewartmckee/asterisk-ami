@@ -83,15 +83,19 @@ module Asterisk
       end
 
       def queue_add(queue, exten, penalty=2, paused=false, member_name)
-        Asterisk::Action.new("QueueAdd", {"Queue" => queue, "Interface" => exten, "Penalty" => penalty, "Paused" => paused, "MemberName" => member_name}).send(@connection)
+        Asterisk::Action.new("QueueAdd", {"Queue" => queue.to_s, "Interface" => exten, "Penalty" => penalty, "Paused" => paused, "MemberName" => member_name}).send(@connection)
       end
 
-      def queue_pause(queue, exten)
-        Asterisk::Action.new("QueuePause", {"Interface" => exten, "Paused" => paused}).send(@connection)
+      def queue_pause(exten, queue)
+        Asterisk::Action.new("QueuePause", {"Queue" => queue.to_s, "Interface" => exten, "Paused" => true}).send(@connection)
       end
 
-      def queue_remove(queue, exten)
-        Asterisk::Action.new("QueueRemove", {"Queue" => queue, "Interface" => exten}).send(@connection)
+      def queue_resume(exten, queue)
+        Asterisk::Action.new("QueuePause", {"Queue" => queue.to_s, "Interface" => exten, "Paused" => false}).send(@connection)
+      end
+
+      def queue_remove(exten, queue)
+        Asterisk::Action.new("QueueRemove", {"Queue" => queue.to_s, "Interface" => exten}).send(@connection)
       end
 
       def queue_status
@@ -111,7 +115,6 @@ module Asterisk
       end
 
       def start_recording(channel, filename, options={})
-        ap Asterisk::Action.new("MixMonitor", {"Channel" => channel, "File" => filename})
         Asterisk::Action.new("MixMonitor", {"Channel" => channel, "File" => filename}).send(@connection)
       end
 
