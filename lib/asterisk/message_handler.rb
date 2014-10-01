@@ -25,9 +25,8 @@ module Asterisk
           action = Asterisk::Action.new(:login, :username => @@username, :secret => @@password)
           send_data action.to_ami
         else
-          if message.include?("Event")
-            @@channel.push Asterisk::Event.parse(message)
-          end
+          event = Asterisk::Event.parse(message)
+          @@channel.push event
         end
       end
     end

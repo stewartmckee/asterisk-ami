@@ -29,6 +29,10 @@ module Asterisk
         end
       end
 
+      def connection
+        @connection
+      end
+
       def command(command)
         Asterisk::Action.new("Command", {"Command" => command}).send(@connection)
       end
@@ -115,10 +119,16 @@ module Asterisk
       end
 
       def mailbox_status(exten, context="default")
+        if exten.include?("/")
+          exten = exten.split("/")[1]
+        end
         Asterisk::Action.new("MailboxStatus", {"Mailbox" => "#{exten}@#{context}"}).send(@connection)
       end
 
       def mailbox_count(exten, context="default")
+        if exten.include?("/")
+          exten = exten.split("/")[1]
+        end
         Asterisk::Action.new("MailboxCount", {"Mailbox" => "#{exten}@#{context}"}).send(@connection)
       end
 

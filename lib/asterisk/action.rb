@@ -21,7 +21,8 @@ module Asterisk
       # ap self.to_ami
       # puts "----------------------------------------------------"
       connection.write(self.to_ami)
-      # puts "Sent."
+
+      self.to_hash
     end
 
     # convert the action to ami string to send down wire
