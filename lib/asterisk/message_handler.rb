@@ -34,8 +34,8 @@ module Asterisk
     def unbind
       puts "#{@@server}: #{@@port}"
       puts "-- disconnected from remote server!"
-      # puts "-- attempting reconnection"
-      # reconnect @@server, @@port # use reconnect, already provided by EventMachine
+      puts "-- attempting reconnection"
+      reconnect @@server, @@port # use reconnect, already provided by EventMachine
 
     end
 
