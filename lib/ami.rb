@@ -110,12 +110,12 @@ module Asterisk
         Asterisk::Action.new("QueueRemove", {"Queue" => queue.to_s, "Interface" => exten}).send(@connection)
       end
 
-      def queue_status
-        Asterisk::Action.new("QueueStatus").send(@connection)
+      def queue_status(queue="")
+        Asterisk::Action.new("QueueStatus", {"Queue" => queue.to_s}).send(@connection)
       end
 
       def queue_summary(queue)
-        Asterisk::Action.new("QueueSummary", {"Queue" => queue}).send(@connection)
+        Asterisk::Action.new("QueueSummary", {"Queue" => queue.to_s}).send(@connection)
       end
 
       def mailbox_status(exten, context="default")
