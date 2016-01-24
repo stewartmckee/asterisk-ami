@@ -9,6 +9,7 @@ module Asterisk
 
     def initialize(username, password, host="localhost", port=5038)
       @connection = Asterisk::Connection.new(username, password, host, port)
+      @connected = false
     end
 
     def connect
@@ -94,6 +95,9 @@ module Asterisk
     def mailbox_count(exten, context="default")
       Asterisk::Action.new("MailboxCount", {"Mailbox" => "#{exten}@#{context}"}).send(@connection)
     end
+
+    private
+      attr_accessor :connected
 
   end
 end
