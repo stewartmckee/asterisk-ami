@@ -2,7 +2,7 @@
 # Lincense: New BSD Lincense
 
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__)) + "/../lib"
-require File.expand_path(File.dirname(__FILE__)) + "/../../ami"
+require File.expand_path(File.dirname(__FILE__)) + "/../../asterisk-ami"
 
 require 'em-websocket'
 
