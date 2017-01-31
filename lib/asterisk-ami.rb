@@ -1,4 +1,4 @@
-
+require (File.dirname(__FILE__) + '/asterisk/message_helper.rb')
 
 Dir[File.dirname(__FILE__) + '/*.rb'].each {|file| require file }
 Dir[File.dirname(__FILE__) + '/asterisk/*.rb'].each {|file| require file }
@@ -6,6 +6,7 @@ require "titleize"
 
 module Asterisk
   class AMI
+    attr_accessor :connected
 
     def initialize(username, password, host="localhost", port=5038)
       @connection = Asterisk::Connection.new(username, password, host, port)
@@ -95,9 +96,6 @@ module Asterisk
     def mailbox_count(exten, context="default")
       Asterisk::Action.new("MailboxCount", {"Mailbox" => "#{exten}@#{context}"}).send(@connection)
     end
-
-    private
-      attr_accessor :connected
 
   end
 end
